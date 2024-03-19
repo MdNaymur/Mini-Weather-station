@@ -1,0 +1,54 @@
+
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+#include "DHT.h"
+
+#define RAIN_SENSOR A0 // Analog pin where the rain sensor is connected
+#define DHTPIN D7
+bool rain;
+#define DHTTYPE DHT11
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Change 0x27 to the I2C address of your LCD
+DHT dht(DHTPIN, DHTTYPE);
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0,0);
+  lcd.print("Weather Station");
+  lcd.setCursor(4,1);
+  lcd.print("Ready");
+  delay(1500);
+}
+
+void loop() {
+  int temperature = dht.readTemperature();
+  int humidity = dht.readHumidity();
+  int rainValue = analogRead(RAIN_SENSOR);
+  Serial.print(rainValue );
+  Serial.print("Temperature: ");
+  Serial.print(temperature);
+  Serial.print(" °C\tHumidity: ");
+  Serial.print(humidity);
+  Serial.println(" %");
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Temp:");
+  lcd.print(temperature);
+  lcd.print("C");
+  lcd.setCursor(8,0);
+  lcd.print(" Hum:");
+  lcd.print(humidity);
+  lcd.print("%");
+
+  lcd.setCursor(0,1);
+  lcd.print("Rain:");
+  if (rainValue > 950) {
+    lcd.print("No rain");
+    rain=LOW;
+  } else {
+    lcd.print("Rain detected");
+    rain=HIGH;
+  }
+delay(1000);
+}
